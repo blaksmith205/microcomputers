@@ -18,8 +18,9 @@
 #ifndef CS_PIN
 #define CS_PIN	2	// Set CS bit as bit 2 of PORTB (pin 10)
 #endif
+
 // Initialize the rows to zero
-uint16_t ROWS[] = {0x0800, 0x0700, 0x0600, 0x0500, 0x0500, 0x0400, 0x0300, 0x0200, 0x0100};
+uint16_t ROWS[] = {0x0800, 0x0700, 0x0600, 0x0500, 0x0400, 0x0300, 0x0200, 0x0100};
 
 void spi_init(volatile uint8_t *DDR, uint8_t MOSI, uint8_t CLK, uint8_t CS)
 {
@@ -29,10 +30,7 @@ void spi_init(volatile uint8_t *DDR, uint8_t MOSI, uint8_t CLK, uint8_t CS)
 	spi_transfer(0x0900);			//disable decoding for all segments
 	spi_transfer(0x0B07);			//scan 8 8-segments
 	
-	// Clear all digits
-	for(uint16_t data = 0x0100; data <=0x0800; data += 0x0100){
-		spi_transfer(data);
-	}
+	clearScreen();
 	
 	spi_transfer(0x0C01);			//turn on the matrix
 }
@@ -57,10 +55,10 @@ void setIntensity(uint8_t intensity)
 
 /*
 	Sets the LED in desired cell
-	row: 0 to 7 upper left is 0
-	col: 0 to 7 upper left is 0
+	row: 0 to 7; upper left is 0
+	col: 0 to 7; upper left is 0
 */
-void setCell(uint8_t row, uint8_t col, uint8_t state)
+void setLED(uint8_t row, uint8_t col, uint8_t state)
 {
 	if (row < 0 || row > 7)
 		return;
@@ -74,9 +72,52 @@ void setCell(uint8_t row, uint8_t col, uint8_t state)
 		CLR_BIT(data, col);
 		spi_transfer(data);
 	}
+	// Turn on the cell
 	if (state == HIGH){
 		SET_BIT(data, col);
 		spi_transfer(data);
 	}
 	ROWS[row] = data;
+}
+
+void setRow(uint8_t row, uint8_t state)
+{
+	if (row < 0 || row > 7) 
+		return;
+	// Clear all bits in the row in same transfer
+	if (state == LOW)
+		spi_transfer((8-row) << 8);
+	// Set all bits in the row in same transfer
+	else if (state == HIGH){
+		spi_transfer(((8-row) << 8) | 0xFF);
+	}
+}
+
+void setCol(uint8_t col, uint8_t state)
+{
+	if (col < 0 || col > 7)
+		return;
+	
+	uint8_t _col;
+	if (state == LOW){
+		CLR_BIT(_col, col);
+	}
+	else if (state == HIGH){
+		SET_BIT(_col, col);
+	}
+	else { 
+		return;
+	}
+	
+	for (uint16_t row = 0x0100; row <= 0x0800; row+=0x0100){
+		spi_transfer(row | _col);
+	}
+}
+
+void clearScreen()
+{
+		// Clear all digits
+		for(uint16_t data = 0x0100; data <=0x0800; data += 0x0100){
+			spi_transfer(data);
+		}
 }

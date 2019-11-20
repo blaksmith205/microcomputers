@@ -23,5 +23,8 @@
 void spi_init(volatile uint8_t *DDR, uint8_t MOSI, uint8_t CLK, uint8_t CS);
 void spi_transfer(uint16_t data);
 void setIntensity(uint8_t intensity);
-void setCell(uint8_t row, uint8_t col, uint8_t state);
+void setLED(uint8_t row, uint8_t col, uint8_t state);
+void setRow(uint8_t row, uint8_t state);
+void setCol(uint8_t col, uint8_t state);
+void clearScreen();
 #endif /* LED_MATRIX_H_ */

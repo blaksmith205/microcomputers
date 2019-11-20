@@ -16,20 +16,11 @@
 #include <util/delay.h>
 #include "led_matrix.h"
 
-extern uint16_t ROWS[8];
-
 int main(void)
 {
     SET_BIT(PORTB, CS_PIN); // Don't select matrix until transmission
     spi_init(&DDRB, DIN_PIN, SCK_PIN, CS_PIN);	// Initialize serial output pins on PORTB
     setIntensity(15);
-    
-    // Set individual cells
-    setCell(0,0, HIGH);
-    setCell(0,7, HIGH);
-    setCell(5,3, HIGH);
-    setCell(7,7, HIGH);
-    setCell(7,2, HIGH);
     
     SET_BIT(DDRB, 0);	// Signal program is done
     SET_BIT(PORTB, 0);
