@@ -3,29 +3,29 @@ LED_Matrix_test.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  000001c0  2**0
+  0 .data         00000012  00800100  000001ee  00000262  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         0000016c  00000000  00000000  00000054  2**1
+  1 .text         000001ee  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  000001c0  2**0
+  2 .comment      00000030  00000000  00000000  00000274  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000001f0  2**2
+  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000002a4  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000038  00000000  00000000  00000230  2**0
+  4 .debug_aranges 00000040  00000000  00000000  000002e4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   000009a5  00000000  00000000  00000268  2**0
+  5 .debug_info   000009ec  00000000  00000000  00000324  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 0000075b  00000000  00000000  00000c0d  2**0
+  6 .debug_abbrev 00000764  00000000  00000000  00000d10  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000032e  00000000  00000000  00001368  2**0
+  7 .debug_line   00000375  00000000  00000000  00001474  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000060  00000000  00000000  00001698  2**2
+  8 .debug_frame  00000084  00000000  00000000  000017ec  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    0000040e  00000000  00000000  000016f8  2**0
+  9 .debug_str    00000402  00000000  00000000  00001870  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    000001e9  00000000  00000000  00001b06  2**0
+ 10 .debug_loc    000002a6  00000000  00000000  00001c72  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000028  00000000  00000000  00001cef  2**0
+ 11 .debug_ranges 00000030  00000000  00000000  00001f18  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -70,48 +70,37 @@ Disassembly of section .text:
   74:	11 e0       	ldi	r17, 0x01	; 1
   76:	a0 e0       	ldi	r26, 0x00	; 0
   78:	b1 e0       	ldi	r27, 0x01	; 1
-  7a:	ec e6       	ldi	r30, 0x6C	; 108
+  7a:	ee ee       	ldi	r30, 0xEE	; 238
   7c:	f1 e0       	ldi	r31, 0x01	; 1
   7e:	02 c0       	rjmp	.+4      	; 0x84 <__do_copy_data+0x10>
   80:	05 90       	lpm	r0, Z+
   82:	0d 92       	st	X+, r0
-  84:	a0 30       	cpi	r26, 0x00	; 0
+  84:	a2 31       	cpi	r26, 0x12	; 18
   86:	b1 07       	cpc	r27, r17
   88:	d9 f7       	brne	.-10     	; 0x80 <__do_copy_data+0xc>
-  8a:	0e 94 92 00 	call	0x124	; 0x124 <main>
-  8e:	0c 94 b4 00 	jmp	0x168	; 0x168 <_exit>
+  8a:	0e 94 cd 00 	call	0x19a	; 0x19a <main>
+  8e:	0c 94 f5 00 	jmp	0x1ea	; 0x1ea <_exit>
 
 00000092 <__bad_interrupt>:
   92:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 00000096 <spi_transfer>:
-	spi_transfer(0x0C01);			//turn on the matrix
-}
 
-void spi_transfer(uint16_t data)
+void setIntensity(uint8_t intensity)
 {
-	CLR_BIT(PORTB, CS_PIN);		// Select matrix
+	if (intensity < 0 || intensity > 15)
+	return;
+	spi_transfer(0x0A00 | intensity);
   96:	2a 98       	cbi	0x05, 2	; 5
-	SPDR = data >> 8;			//start CMD transmission
   98:	9e bd       	out	0x2e, r25	; 46
-	while(!(SPSR & (1<<SPIF)));	//wait transfer finish
   9a:	0d b4       	in	r0, 0x2d	; 45
   9c:	07 fe       	sbrs	r0, 7
   9e:	fd cf       	rjmp	.-6      	; 0x9a <spi_transfer+0x4>
-	SPDR = data & 0xFF;			//start DATA transmission
   a0:	8e bd       	out	0x2e, r24	; 46
-	while(!(SPSR & (1<<SPIF)));	//wait transfer finish
   a2:	0d b4       	in	r0, 0x2d	; 45
   a4:	07 fe       	sbrs	r0, 7
   a6:	fd cf       	rjmp	.-6      	; 0xa2 <spi_transfer+0xc>
-	SET_BIT(PORTB, CS_PIN)		//terminate the packet by
   a8:	2a 9a       	sbi	0x05, 2	; 5
-	#else
-		//round up by default
-		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
-	#endif
-
-	__builtin_avr_delay_cycles(__ticks_dc);
   aa:	8f e9       	ldi	r24, 0x9F	; 159
   ac:	9f e0       	ldi	r25, 0x0F	; 15
   ae:	01 97       	sbiw	r24, 0x01	; 1
@@ -121,15 +110,8 @@ void spi_transfer(uint16_t data)
   b6:	08 95       	ret
 
 000000b8 <spi_init>:
-	while(1);
-	return 0;
-}
-
-void spi_init(volatile uint8_t *DDR, uint8_t MOSI, uint8_t CLK, uint8_t CS)
-{
   b8:	cf 93       	push	r28
   ba:	df 93       	push	r29
-	*DDR = (1<<MOSI)|(1<<CLK)|(1<<CS);		//MOSI and SCK are output, CS to select matrix
   bc:	e1 e0       	ldi	r30, 0x01	; 1
   be:	f0 e0       	ldi	r31, 0x00	; 0
   c0:	df 01       	movw	r26, r30
@@ -155,116 +137,176 @@ void spi_init(volatile uint8_t *DDR, uint8_t MOSI, uint8_t CLK, uint8_t CS)
   e8:	e2 2b       	or	r30, r18
   ea:	dc 01       	movw	r26, r24
   ec:	ec 93       	st	X, r30
-	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);	//enable SPI as master
   ee:	81 e5       	ldi	r24, 0x51	; 81
   f0:	8c bd       	out	0x2c, r24	; 44
-	
-	spi_transfer(0x0900);			//disable decoding for all segments
   f2:	80 e0       	ldi	r24, 0x00	; 0
   f4:	99 e0       	ldi	r25, 0x09	; 9
   f6:	0e 94 4b 00 	call	0x96	; 0x96 <spi_transfer>
-	spi_transfer(0x0B07);			//scan 8 8-segments
   fa:	87 e0       	ldi	r24, 0x07	; 7
   fc:	9b e0       	ldi	r25, 0x0B	; 11
   fe:	0e 94 4b 00 	call	0x96	; 0x96 <spi_transfer>
-	
-	// Clear all digits
-	for(uint16_t data = 0x0100; data <=0x0800; data += 0x0100){
  102:	c0 e0       	ldi	r28, 0x00	; 0
  104:	d1 e0       	ldi	r29, 0x01	; 1
-		spi_transfer(data);
  106:	ce 01       	movw	r24, r28
  108:	0e 94 4b 00 	call	0x96	; 0x96 <spi_transfer>
-	
-	spi_transfer(0x0900);			//disable decoding for all segments
-	spi_transfer(0x0B07);			//scan 8 8-segments
-	
-	// Clear all digits
-	for(uint16_t data = 0x0100; data <=0x0800; data += 0x0100){
  10c:	d3 95       	inc	r29
  10e:	c1 15       	cp	r28, r1
  110:	b9 e0       	ldi	r27, 0x09	; 9
  112:	db 07       	cpc	r29, r27
  114:	c1 f7       	brne	.-16     	; 0x106 <spi_init+0x4e>
-		spi_transfer(data);
-	}
-	
-	spi_transfer(0x0C01);			//turn on the matrix
  116:	81 e0       	ldi	r24, 0x01	; 1
  118:	9c e0       	ldi	r25, 0x0C	; 12
  11a:	0e 94 4b 00 	call	0x96	; 0x96 <spi_transfer>
-}
  11e:	df 91       	pop	r29
  120:	cf 91       	pop	r28
  122:	08 95       	ret
 
-00000124 <main>:
-void spi_transfer(uint16_t data);
+00000124 <setCell>:
+	Sets the LED in desired cell
+	row: 0 to 7 upper left is 0
+	col: 0 to 7 upper left is 0
+*/
+void setCell(uint8_t row, uint8_t col, uint8_t state)
+{
+ 124:	0f 93       	push	r16
+ 126:	1f 93       	push	r17
+ 128:	cf 93       	push	r28
+ 12a:	df 93       	push	r29
+	if (row < 0 || row > 7)
+ 12c:	88 30       	cpi	r24, 0x08	; 8
+ 12e:	80 f5       	brcc	.+96     	; 0x190 <setCell+0x6c>
+		return;
+	if (col < 0 || col > 7)
+ 130:	68 30       	cpi	r22, 0x08	; 8
+ 132:	70 f5       	brcc	.+92     	; 0x190 <setCell+0x6c>
+		return;
+	
+	uint16_t data = ROWS[row];
+ 134:	c8 2f       	mov	r28, r24
+ 136:	d0 e0       	ldi	r29, 0x00	; 0
+ 138:	fe 01       	movw	r30, r28
+ 13a:	ee 0f       	add	r30, r30
+ 13c:	ff 1f       	adc	r31, r31
+ 13e:	e0 50       	subi	r30, 0x00	; 0
+ 140:	ff 4f       	sbci	r31, 0xFF	; 255
+ 142:	00 81       	ld	r16, Z
+ 144:	11 81       	ldd	r17, Z+1	; 0x01
+	
+	// Turn off the cell
+	if (state == LOW){
+ 146:	41 11       	cpse	r20, r1
+ 148:	0f c0       	rjmp	.+30     	; 0x168 <setCell+0x44>
+		CLR_BIT(data, col);
+ 14a:	81 e0       	ldi	r24, 0x01	; 1
+ 14c:	90 e0       	ldi	r25, 0x00	; 0
+ 14e:	02 c0       	rjmp	.+4      	; 0x154 <setCell+0x30>
+ 150:	88 0f       	add	r24, r24
+ 152:	99 1f       	adc	r25, r25
+ 154:	6a 95       	dec	r22
+ 156:	e2 f7       	brpl	.-8      	; 0x150 <setCell+0x2c>
+ 158:	80 95       	com	r24
+ 15a:	90 95       	com	r25
+ 15c:	08 23       	and	r16, r24
+ 15e:	19 23       	and	r17, r25
+		spi_transfer(data);
+ 160:	c8 01       	movw	r24, r16
+ 162:	0e 94 4b 00 	call	0x96	; 0x96 <spi_transfer>
+ 166:	0e c0       	rjmp	.+28     	; 0x184 <setCell+0x60>
+	}
+	if (state == HIGH){
+ 168:	41 30       	cpi	r20, 0x01	; 1
+ 16a:	61 f4       	brne	.+24     	; 0x184 <setCell+0x60>
+		SET_BIT(data, col);
+ 16c:	81 e0       	ldi	r24, 0x01	; 1
+ 16e:	90 e0       	ldi	r25, 0x00	; 0
+ 170:	02 c0       	rjmp	.+4      	; 0x176 <setCell+0x52>
+ 172:	88 0f       	add	r24, r24
+ 174:	99 1f       	adc	r25, r25
+ 176:	6a 95       	dec	r22
+ 178:	e2 f7       	brpl	.-8      	; 0x172 <setCell+0x4e>
+ 17a:	08 2b       	or	r16, r24
+ 17c:	19 2b       	or	r17, r25
+		spi_transfer(data);
+ 17e:	c8 01       	movw	r24, r16
+ 180:	0e 94 4b 00 	call	0x96	; 0x96 <spi_transfer>
+	}
+	ROWS[row] = data;
+ 184:	cc 0f       	add	r28, r28
+ 186:	dd 1f       	adc	r29, r29
+ 188:	c0 50       	subi	r28, 0x00	; 0
+ 18a:	df 4f       	sbci	r29, 0xFF	; 255
+ 18c:	19 83       	std	Y+1, r17	; 0x01
+ 18e:	08 83       	st	Y, r16
+}
+ 190:	df 91       	pop	r29
+ 192:	cf 91       	pop	r28
+ 194:	1f 91       	pop	r17
+ 196:	0f 91       	pop	r16
+ 198:	08 95       	ret
+
+0000019a <main>:
 void setIntensity(uint8_t intensity);
+void setCell(uint8_t row, uint8_t col, uint8_t state);
 
 int main(void)
 {
 	SET_BIT(PORTB, CS_PIN); // Don't select matrix until transmission
- 124:	2a 9a       	sbi	0x05, 2	; 5
+ 19a:	2a 9a       	sbi	0x05, 2	; 5
 	spi_init(&DDRB, DIN_PIN, SCK_PIN, CS_PIN);	// Initialize serial output pins on PORTB
- 126:	22 e0       	ldi	r18, 0x02	; 2
- 128:	45 e0       	ldi	r20, 0x05	; 5
- 12a:	63 e0       	ldi	r22, 0x03	; 3
- 12c:	84 e2       	ldi	r24, 0x24	; 36
- 12e:	90 e0       	ldi	r25, 0x00	; 0
- 130:	0e 94 5c 00 	call	0xb8	; 0xb8 <spi_init>
+ 19c:	22 e0       	ldi	r18, 0x02	; 2
+ 19e:	45 e0       	ldi	r20, 0x05	; 5
+ 1a0:	63 e0       	ldi	r22, 0x03	; 3
+ 1a2:	84 e2       	ldi	r24, 0x24	; 36
+ 1a4:	90 e0       	ldi	r25, 0x00	; 0
+ 1a6:	0e 94 5c 00 	call	0xb8	; 0xb8 <spi_init>
 
 void setIntensity(uint8_t intensity)
 {
 	if (intensity < 0 || intensity > 15)
 	return;
 	spi_transfer(0x0A00 | intensity);
- 134:	8f e0       	ldi	r24, 0x0F	; 15
- 136:	9a e0       	ldi	r25, 0x0A	; 10
- 138:	0e 94 4b 00 	call	0x96	; 0x96 <spi_transfer>
-{
-	SET_BIT(PORTB, CS_PIN); // Don't select matrix until transmission
-	spi_init(&DDRB, DIN_PIN, SCK_PIN, CS_PIN);	// Initialize serial output pins on PORTB
-	setIntensity(15);
+ 1aa:	8f e0       	ldi	r24, 0x0F	; 15
+ 1ac:	9a e0       	ldi	r25, 0x0A	; 10
+ 1ae:	0e 94 4b 00 	call	0x96	; 0x96 <spi_transfer>
+	//		setCell(row,col,LOW);
+	//	}
+	//}
 	
-	for (uint16_t data = 0x0100; data <= 0x08FF; data++){
- 13c:	c0 e0       	ldi	r28, 0x00	; 0
- 13e:	d1 e0       	ldi	r29, 0x01	; 1
-		spi_transfer(data);
- 140:	ce 01       	movw	r24, r28
- 142:	0e 94 4b 00 	call	0x96	; 0x96 <spi_transfer>
- 146:	2f ef       	ldi	r18, 0xFF	; 255
- 148:	89 ef       	ldi	r24, 0xF9	; 249
- 14a:	90 e0       	ldi	r25, 0x00	; 0
- 14c:	21 50       	subi	r18, 0x01	; 1
- 14e:	80 40       	sbci	r24, 0x00	; 0
- 150:	90 40       	sbci	r25, 0x00	; 0
- 152:	e1 f7       	brne	.-8      	; 0x14c <main+0x28>
- 154:	00 c0       	rjmp	.+0      	; 0x156 <main+0x32>
- 156:	00 00       	nop
-{
-	SET_BIT(PORTB, CS_PIN); // Don't select matrix until transmission
-	spi_init(&DDRB, DIN_PIN, SCK_PIN, CS_PIN);	// Initialize serial output pins on PORTB
-	setIntensity(15);
+	// Set individual cells
+	setCell(0,0, HIGH);
+ 1b2:	41 e0       	ldi	r20, 0x01	; 1
+ 1b4:	60 e0       	ldi	r22, 0x00	; 0
+ 1b6:	80 e0       	ldi	r24, 0x00	; 0
+ 1b8:	0e 94 92 00 	call	0x124	; 0x124 <setCell>
+	setCell(0,7, HIGH);
+ 1bc:	41 e0       	ldi	r20, 0x01	; 1
+ 1be:	67 e0       	ldi	r22, 0x07	; 7
+ 1c0:	80 e0       	ldi	r24, 0x00	; 0
+ 1c2:	0e 94 92 00 	call	0x124	; 0x124 <setCell>
+	setCell(5,3, HIGH);
+ 1c6:	41 e0       	ldi	r20, 0x01	; 1
+ 1c8:	63 e0       	ldi	r22, 0x03	; 3
+ 1ca:	85 e0       	ldi	r24, 0x05	; 5
+ 1cc:	0e 94 92 00 	call	0x124	; 0x124 <setCell>
+	setCell(7,7, HIGH);
+ 1d0:	41 e0       	ldi	r20, 0x01	; 1
+ 1d2:	67 e0       	ldi	r22, 0x07	; 7
+ 1d4:	87 e0       	ldi	r24, 0x07	; 7
+ 1d6:	0e 94 92 00 	call	0x124	; 0x124 <setCell>
+	setCell(7,2, HIGH);
+ 1da:	41 e0       	ldi	r20, 0x01	; 1
+ 1dc:	62 e0       	ldi	r22, 0x02	; 2
+ 1de:	87 e0       	ldi	r24, 0x07	; 7
+ 1e0:	0e 94 92 00 	call	0x124	; 0x124 <setCell>
 	
-	for (uint16_t data = 0x0100; data <= 0x08FF; data++){
- 158:	21 96       	adiw	r28, 0x01	; 1
- 15a:	c1 15       	cp	r28, r1
- 15c:	29 e0       	ldi	r18, 0x09	; 9
- 15e:	d2 07       	cpc	r29, r18
- 160:	79 f7       	brne	.-34     	; 0x140 <main+0x1c>
-		spi_transfer(data);
-		_delay_ms(20);
-	}
-
 	SET_BIT(DDRB, 0);	// Signal program is done
- 162:	20 9a       	sbi	0x04, 0	; 4
+ 1e4:	20 9a       	sbi	0x04, 0	; 4
 	SET_BIT(PORTB, 0); 
- 164:	28 9a       	sbi	0x05, 0	; 5
- 166:	ff cf       	rjmp	.-2      	; 0x166 <main+0x42>
+ 1e6:	28 9a       	sbi	0x05, 0	; 5
+ 1e8:	ff cf       	rjmp	.-2      	; 0x1e8 <main+0x4e>
 
-00000168 <_exit>:
- 168:	f8 94       	cli
+000001ea <_exit>:
+ 1ea:	f8 94       	cli
 
-0000016a <__stop_program>:
- 16a:	ff cf       	rjmp	.-2      	; 0x16a <__stop_program>
+000001ec <__stop_program>:
+ 1ec:	ff cf       	rjmp	.-2      	; 0x1ec <__stop_program>

@@ -32,18 +32,13 @@
 #define SCK_PIN	5	// Set Clock bit as bit 5 of PORTB (pin 13)
 #define CS_PIN	2	// Set CS bit as bit 2 of PORTB (pin 10)
 
-uint16_t row0 = 0x0800;
-uint16_t row1 = 0x0700;
-uint16_t row2 = 0x0600;
-uint16_t row3 = 0x0500;
-uint16_t row4 = 0x0400;
-uint16_t row5 = 0x0300;
-uint16_t row6 = 0x0200;
-uint16_t row7 = 0x0100;
+// Initialize the rows to zero
+uint16_t ROWS[] = {0x0800, 0x0700, 0x0600, 0x0500, 0x0500, 0x0400, 0x0300, 0x0200, 0x0100};
 
 void spi_init(volatile uint8_t *DDR, uint8_t MOSI, uint8_t CLK, uint8_t CS);
 void spi_transfer(uint16_t data);
 void setIntensity(uint8_t intensity);
+void setCell(uint8_t row, uint8_t col, uint8_t state);
 
 int main(void)
 {
@@ -51,11 +46,28 @@ int main(void)
 	spi_init(&DDRB, DIN_PIN, SCK_PIN, CS_PIN);	// Initialize serial output pins on PORTB
 	setIntensity(15);
 	
-	for (uint16_t data = 0x0100; data <= 0x08FF; data++){
-		spi_transfer(data);
-		_delay_ms(20);
-	}
+	// Use the LED matrix as a counter
+	//for (uint16_t data = 0x0100; data <= 0x08FF; data++){
+	//	spi_transfer(data);
+	//	_delay_ms(20);
+	//}
 
+	// Set only every selected cell. Upper left is (0,0) when looking at it with ->in ... out-> on bottom
+	//for (uint8_t row = 0; row < 8; row++){
+	//	for (uint8_t col = 0; col < 8; col++){
+	//		setCell(row,col,HIGH);
+	//		_delay_ms(250);
+	//		setCell(row,col,LOW);
+	//	}
+	//}
+	
+	// Set individual cells
+	setCell(0,0, HIGH);
+	setCell(0,7, HIGH);
+	setCell(5,3, HIGH);
+	setCell(7,7, HIGH);
+	setCell(7,2, HIGH);
+	
 	SET_BIT(DDRB, 0);	// Signal program is done
 	SET_BIT(PORTB, 0); 
 	while(1);
@@ -96,3 +108,28 @@ void setIntensity(uint8_t intensity)
 	spi_transfer(0x0A00 | intensity);
 }
 
+/*
+	Sets the LED in desired cell
+	row: 0 to 7 upper left is 0
+	col: 0 to 7 upper left is 0
+*/
+void setCell(uint8_t row, uint8_t col, uint8_t state)
+{
+	if (row < 0 || row > 7)
+		return;
+	if (col < 0 || col > 7)
+		return;
+	
+	uint16_t data = ROWS[row];
+	
+	// Turn off the cell
+	if (state == LOW){
+		CLR_BIT(data, col);
+		spi_transfer(data);
+	}
+	if (state == HIGH){
+		SET_BIT(data, col);
+		spi_transfer(data);
+	}
+	ROWS[row] = data;
+}
