@@ -36,7 +36,8 @@ int main(void)
 	
 	// Create the snake
 	snake_cell *snake = start(0, 0, &isRunning);
-	setLED(3, 3, HIGH);	// Temporary apple
+	updateBoardAndDisplay(3, 3, APPLE);	// Temporary apple
+	updateFood(3, 3); // Update temporary food
  	while (isRunning){
  		// Monitor the buttons on PIND
  		switch (monitorButtons()){

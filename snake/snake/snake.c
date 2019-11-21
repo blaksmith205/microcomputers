@@ -14,53 +14,67 @@
 
 // Global board matrix for location of elements
 uint8_t board[BOARD_WIDTH][BOARD_WIDTH];
+// Global apple location. index 0 is row, index 1 is col
+uint8_t food_pos[2];
 // Game loop tracker. Probably a better way to do this
 bool *gameLoop;
 // Snake related
 
 /*
-	Creates the head of the snake at a random location
+	Creates a snake segment at a random location if row and col are -1.
+	Otherwise, creates the snake segment at the desired cell.
 */
-snake_cell* createSnake(int8_t startRow, int8_t startCol)
+snake_cell* createSnakeSegment(int8_t startRow, int8_t startCol)
 {
 	// Allocate space
-	snake_cell *head = (snake_cell *) malloc(sizeof(snake_cell));
+	snake_cell *segment = (snake_cell *) malloc(sizeof(snake_cell));
 	
-	int8_t head_row, head_col;
+	int8_t segment_row, segment_col;
 	
 	// Randomly generate position if -1 is given for row and col
 	if (startRow == -1 && startCol == -1){
-		getAvailablePosition(&head_row, &head_col);
+		getAvailablePosition(&segment_row, &segment_col);
 	}
 	else {
-		head_row = startRow;
-		head_col = startCol;
+		segment_row = startRow;
+		segment_col = startCol;
 	}
 	// Position should never be -1 when starting a game
-	assert(head_row != -1 && head_col != -1);
+	assert(segment_row != -1 && segment_col != -1);
 	
 	// Setup the head values
-	head->row = head_row;
-	head->col = head_col;
-	head->next = NULL;
-	head->prev = NULL;
+	segment->row = segment_row;
+	segment->col = segment_col;
+	segment->next = NULL;
+	segment->prev = NULL;
 	
 	// Place the snake on the board
-	updateBoardAndDisplay(head_row, head_col, HIGH);
-	return head;
+	updateBoardAndDisplay(segment_row, segment_col, SNAKE_CELL);
+	return segment;
 }
 
 /* Creates the snake at desired location and keeps track of the game looping variable */
 snake_cell* start(uint8_t startRow, uint8_t startCol, bool *loopVar)
 {
 	gameLoop = loopVar;
-	return createSnake(startRow, startCol);
+	return createSnakeSegment(startRow, startCol);
 }
 
-/* Grows the snake by 1 cell. Updates the tail pointer in head and updates the food*/
+/* Increases the length of the snake, and changes the food location */
 void grow(snake_cell *head)
 {
+	if (head == NULL) return;
+		
+	// Segment row and col are obtained from food cell location
+	uint8_t segmentRow = food_pos[0];
+	uint8_t segmentCol = food_pos[1];
+	updateSnake(head, segmentRow, segmentCol);
 	
+	// Update the board to indicate the change. Don't need to update LEDS
+	updateBoard(segmentRow, segmentCol, SNAKE_CELL);
+	
+	// Set the new apple position
+	updateFood(1, 6); // Temporary apple
 }
 
 /* 
@@ -105,6 +119,36 @@ void moveSnake(snake_cell *head, uint8_t direction)
 	else {
 		updateBoardAndDisplay(oldTailRow, oldTailCol, LOW);
 	}
+}
+
+/* Grows the snake by 1 cell. Updates the tail pointer in head */
+void updateSnake(snake_cell *head, uint8_t segmentRow, uint8_t segmentCol)
+{
+	if (head == NULL) return;
+
+	// Create a new snake segment
+	snake_cell *segment = createSnakeSegment(segmentRow, segmentCol);
+	snake_cell *tail = head->prev;
+	// Use the current tail to update the tail. Avoid traversing the linked list
+	if (tail != NULL){
+		// Update the old tail to point to new tail
+		tail->next = segment;
+	}
+	// Update the tail pointer in the head
+	head->prev = segment;
+}
+
+/* Updates the food position and the board */
+void updateFood(uint8_t newRow, uint8_t newCol)
+{
+	if (!isBoardBounded(newRow) || !isBoardBounded(newCol))
+		return;
+	
+	food_pos[0] = newRow;
+	food_pos[1] = newCol;
+	
+	// Old food position turns into a snake_cell. Only place new food
+	updateBoardAndDisplay(newRow, newCol, APPLE);
 }
 
 /*
