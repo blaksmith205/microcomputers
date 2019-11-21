@@ -14,8 +14,6 @@
 
 // Global board matrix for location of elements
 uint8_t board[BOARD_WIDTH][BOARD_WIDTH];
-// Global apple location. index 0 is row, index 1 is col
-uint8_t food_pos[2];
 // Game loop tracker. Probably a better way to do this
 bool *gameLoop;
 // Snake related
@@ -128,7 +126,7 @@ void eatFood(snake_cell *head, uint8_t currentRow, uint8_t currentCol)
 	growSnake(head, currentRow, currentCol);
 	
 	// Set the new apple position
-	updateFood(1, 6); // Temporary apple
+	placeFood();
 }
 
 /*
@@ -196,9 +194,6 @@ void updateFood(uint8_t newRow, uint8_t newCol)
 {
 	if (!isBoardBounded(newRow) || !isBoardBounded(newCol))
 		return;
-	
-	food_pos[0] = newRow;
-	food_pos[1] = newCol;
 	
 	// Old food position turns into a snake_cell. Only place new food
 	updateBoardAndDisplay(newRow, newCol, APPLE);
@@ -341,7 +336,7 @@ void placeFood()
 	int8_t food_col;
 	getAvailablePosition(&food_row, &food_col);
 	if (food_row != -1 && food_col != -1){
-		updateBoard(food_row, food_col, APPLE);
+		updateBoardAndDisplay(food_row, food_col, APPLE);
 	}
 	else {
 		endGame();

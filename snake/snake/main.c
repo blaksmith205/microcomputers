@@ -36,7 +36,7 @@ int main(void)
 	
 	// Create the snake
 	snake_cell *snake = start(0, 0, &isRunning);
-	updateFood(3, 3); // temporary apple
+
  	while (isRunning){
  		// Monitor the buttons on PIND
  		switch (monitorButtons()){
@@ -73,10 +73,10 @@ void setup()
 	setupButtons(&DDRD);
 	
 	// Setup random generator
-	//randomInit();
+	randomInit();
 	
 	// Place the first food
-	//placeFood();
+	placeFood();
 }
 
 void setupButtons(volatile uint8_t *BUTTON_DDR)
