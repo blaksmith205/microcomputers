@@ -24,15 +24,15 @@ bool *gameLoop;
 	Creates a snake segment at a random location if row and col are -1.
 	Otherwise, creates the snake segment at the desired cell.
 */
-snake_cell* createSnakeSegment(int8_t startRow, int8_t startCol)
+snake_cell* createSnakeSegment(int8_t startRow, int8_t startCol, snake_cell *prev)
 {
 	// Allocate space
 	snake_cell *segment = (snake_cell *) malloc(sizeof(snake_cell));
 	
 	int8_t segment_row, segment_col;
 	
-	// Randomly generate position if -1 is given for row and col
-	if (startRow == -1 && startCol == -1){
+	// Randomly generate position if -1 is given for row or col
+	if (startRow == -1 || startCol == -1){
 		getAvailablePosition(&segment_row, &segment_col);
 	}
 	else {
@@ -46,7 +46,7 @@ snake_cell* createSnakeSegment(int8_t startRow, int8_t startCol)
 	segment->row = segment_row;
 	segment->col = segment_col;
 	segment->next = NULL;
-	segment->prev = NULL;
+	segment->prev = prev;
 	
 	// Place the snake on the board
 	updateBoardAndDisplay(segment_row, segment_col, SNAKE_CELL);
@@ -57,7 +57,66 @@ snake_cell* createSnakeSegment(int8_t startRow, int8_t startCol)
 snake_cell* start(uint8_t startRow, uint8_t startCol, bool *loopVar)
 {
 	gameLoop = loopVar;
-	return createSnakeSegment(startRow, startCol);
+	return createSnakeSegment(startRow, startCol, NULL);
+}
+
+/* 
+	Moves the snake up. Performs necessary checks
+*/
+void moveSnake(snake_cell *head, uint8_t direction)
+{
+	if (head == NULL) return;
+	snake_cell *tail = head->prev;
+	uint8_t currentRow = head->row;
+	uint8_t currentCol = head->col;
+	uint8_t nextRow, nextCol;
+	bool grown = false;
+	getNextCell(currentRow, currentCol, direction, &nextRow, &nextCol);
+	
+	// Check if the next cell is not available (contains apple or snake segment)
+	if (!isAvailable(nextRow, nextCol)){
+		// Check if the next cell contains the apple
+		if (isApple(nextRow, nextCol)){
+			// Grow the snake. Use position of tail if not null because whole snake moves
+			if (tail == NULL){
+				eatFood(head, currentRow, currentCol);
+				grown = true;
+			}
+			else {
+				eatFood(head, tail->row, tail->col);
+				grown = true;
+			}
+		}
+		// Check if the next cell contains a body segment (not a tail)
+		else if (!isTail(nextRow, nextCol, tail)){
+			endGame();	// Signal the game to end
+			return;
+		}
+	}
+	uint8_t prevTailRow, prevTailCol;
+	// Move the body if game hasn't ended
+	moveBody(head, &prevTailRow, &prevTailCol);
+	
+	// update snake's head position
+	head->row = nextRow;
+	head->col = nextCol;
+	
+	// If the snake does not have a tail and it did not grow, clear the current position
+	if (tail == NULL && !grown){
+		updateBoardAndDisplay(currentRow, currentCol, LOW);
+	}
+	// If the snake has a tail and it did not grow, clear the tails previous position
+	else if (tail != NULL && !grown){
+		updateBoardAndDisplay(prevTailRow, prevTailCol, LOW);
+	}	
+	/* 
+		If the snake has no tail and it did grow, the current position becomes a new snake segment
+			(tail == NULL && grown) -> do nothing
+		if the snake has a tail and it grew, the tails old position becomes a new snake segment
+			(tail != NULL && grown) -> do nothing
+	*/
+	// Update the head
+	updateBoardAndDisplay(nextRow, nextCol, SNAKE_CELL);
 }
 
 /* Increases the length of the snake, and changes the food location */
@@ -72,53 +131,11 @@ void eatFood(snake_cell *head, uint8_t currentRow, uint8_t currentCol)
 	updateFood(1, 6); // Temporary apple
 }
 
-/* 
-	Moves the snake up. Performs necessary checks
-*/
-void moveSnake(snake_cell *head, uint8_t direction)
-{
-	if (head == NULL) return;
-	snake_cell *tail = head->prev;
-	uint8_t currentRow = head->row;
-	uint8_t currentCol = head->col;
-	uint8_t nextRow, nextCol;
-	getNextCell(currentRow, currentCol, direction, &nextRow, &nextCol);
-	
-	// Check if the next cell is not available (contains apple or snake segment)
-	if (!isAvailable(nextRow, nextCol)){
-		// Check if the next cell contains the apple
-		if (isApple(nextRow, nextCol)){
-			// Grow the snake. Use position of tail if not null because whole snake moves
-			if (tail == NULL){
-				eatFood(head, currentRow, currentCol);
-			}
-			else {
-				eatFood(head, tail->row, tail->col);
-			}
-		}
-		// Check if the next cell contains a body segment (not a tail)
-		else if (!isTail(nextRow, nextCol, tail)){
-			endGame();	// Signal the game to end
-			return;
-		}
-	}
-	
-	// Move the body if game hasn't ended
-	moveBody(head);
-	
-	// update snake's head position
-	head->row = nextRow;
-	head->col = nextCol;
-	
-	// Update the head
-	updateBoardAndDisplay(nextRow, nextCol, SNAKE_CELL);
-}
-
 /*
 	Moves the body by updating every body segment with the cell of the previous segment.
 	Head hasn't moved yet. Should be able to set the next segment to the cell of previous
 */
-void moveBody(snake_cell *head)
+void moveBody(snake_cell *head, uint8_t *tailOldRow, uint8_t *tailOldCol)
 {
 	if (head == NULL) return;
 
@@ -126,7 +143,7 @@ void moveBody(snake_cell *head)
 	uint8_t prevCol = head->col;
 	uint8_t currentRow, currentCol;
 	
-	// If there is no tail, the previous position of the head is cleared
+	// If there is no tail, the previous position of the head is returned as tailOldpos
 	snake_cell *current_segment = head->next;
 	while (current_segment != NULL){
 		// Store the current position
@@ -137,9 +154,6 @@ void moveBody(snake_cell *head)
 		current_segment->row = prevRow;
 		current_segment->col = prevCol;
 		
-		// Update the board
-		updateBoardAndDisplay(prevRow, prevCol, SNAKE_CELL);
-		
 		// Update the prev position
 		prevRow = currentRow;
 		prevCol = currentCol;
@@ -148,26 +162,32 @@ void moveBody(snake_cell *head)
 		current_segment = current_segment->next;
 	}
 	
-	// Previous position is the tail's last position to remove from board
-	updateBoardAndDisplay(prevRow, prevCol, LOW);
+	*tailOldRow = prevRow;
+	*tailOldCol = prevCol;
 }
 
 /* Grows the snake by 1 cell. Updates the tail pointer in head */
 void growSnake(snake_cell *head, uint8_t currentRow, uint8_t currentCol)
 {
 	if (head == NULL) return;
-
-	// Create a new snake segment
-	snake_cell *segment = createSnakeSegment(currentRow, currentCol);
-	
 	snake_cell *tail = head->prev;
+	// Create a new snake segment
+	snake_cell *segment;
 	
 	// Use the current tail to update the tail. Avoid traversing the linked list
 	if (tail != NULL){
+		// Create the new segment with current tail as prev
+		segment = createSnakeSegment(currentRow, currentCol, tail);
 		// Update the old tail to point to new tail
 		tail->next = segment;
 	}
-	// Update the tail pointer in the head
+	else {
+		// if no tail, then only have 1 cell, the head.
+		segment = createSnakeSegment(currentRow, currentCol, head);
+		// Update head to point to next segment
+		head->next = segment;
+	}
+	// Regardless, update the head to point to tail
 	head->prev = segment;
 }
 
@@ -286,7 +306,7 @@ bool isAvailable(uint8_t row, uint8_t col)
 	// Check range of row and col
 	if (isBoardBounded(row) && isBoardBounded(col)){
 		// Check if the board doesn't have an apple or snake segment
-		return board[row][col] == 0;
+		return board[row][col] == LOW;
 	}
 	return false;
 }
