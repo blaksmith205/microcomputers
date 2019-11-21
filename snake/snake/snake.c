@@ -144,20 +144,44 @@ void getNextCell(uint8_t currentRow, uint8_t currentCol, uint8_t direction, uint
 {
 	switch (direction){
 		case UP:
-			*nextRow = currentRow - 1 % BOARD_WIDTH; // Keep the row bounded (top loops to bottom)
+			// Loop to the bottom row
+			if (currentRow == 0){
+				*nextRow = BOARD_WIDTH - 1;
+			}
+			else {
+				*nextRow = currentRow - 1;
+			}
 			*nextCol = currentCol;
 			break;
 		case DOWN:
-			*nextRow = currentRow + 1 % BOARD_WIDTH; // Keep the row bounded (bottom loops to top)
+			// Loop to the top row
+			if (currentRow == BOARD_WIDTH - 1){
+				*nextRow = 0;
+			}
+			else {
+				*nextRow = currentRow + 1;
+			}
 			*nextCol = currentCol;
 			break;
 		case LEFT:
+			// Loop to the right col
+			if (currentCol == 0){
+				*nextCol = BOARD_WIDTH - 1;
+			}
+			else {
+				*nextCol = currentCol - 1;
+			}
 			*nextRow = currentRow;
-			*nextCol = currentCol - 1 % BOARD_WIDTH; // Keep the row bounded (left loops to right)
 			break;
 		case RIGHT:
+			// Loop to the left col
+			if (currentCol == BOARD_WIDTH - 1){
+				*nextCol = 0;
+			}
+			else {
+				*nextCol = currentCol + 1;
+			}
 			*nextRow = currentRow;
-			*nextCol = currentCol + 1 % BOARD_WIDTH; // Keep the row bounded (left loops to right)
 			break;
 	}
 }
