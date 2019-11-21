@@ -16,15 +16,27 @@
 #include <util/delay.h>
 #include "led_matrix.h"
 
+void setup();
+
 int main(void)
 {
-    SET_BIT(PORTB, CS_PIN); // Don't select matrix until transmission
-    spi_init(&DDRB, DIN_PIN, SCK_PIN, CS_PIN);	// Initialize serial output pins on PORTB
-    setIntensity(15);
-    
+    setup();
     SET_BIT(DDRB, 0);	// Signal program is done
     SET_BIT(PORTB, 0);
     while(1);
     return 0;
 }
 
+void setup()
+{
+	// Setup matrix
+	SET_BIT(PORTB, CS_PIN); // Don't select matrix until transmission
+	spi_init(&DDRB, DIN_PIN, SCK_PIN, CS_PIN);	// Initialize serial output pins on PORTB
+	setIntensity(15);
+	
+	// Setup random generator
+	random_init();
+	
+	// Place the first food
+	placeFood();
+}
