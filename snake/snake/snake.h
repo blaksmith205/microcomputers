@@ -30,9 +30,10 @@ typedef struct snake_cell
 
 snake_cell* createSnakeSegment(int8_t startRow, int8_t startCol);
 snake_cell* start(uint8_t startRow, uint8_t startCol, bool *loopVar);
-void grow(snake_cell *head);
+void eatFood(snake_cell *head, uint8_t currentRow, uint8_t currentCol);
 void moveSnake(snake_cell *head, uint8_t direction);
-void updateSnake(snake_cell *head, uint8_t segmentRow, uint8_t segmentCol);
+void moveBody(snake_cell *head);
+void growSnake(snake_cell *head, uint8_t currentRow, uint8_t currentCol);
 void updateFood(uint8_t row, uint8_t col);
 void getAvailablePosition(int8_t *row, int8_t *col);
 void getNextCell(uint8_t currentRow, uint8_t currentCol, uint8_t direction, uint8_t *nextRow, uint8_t *nextCol);
