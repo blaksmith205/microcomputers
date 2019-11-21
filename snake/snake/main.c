@@ -4,9 +4,9 @@
  * Created: 11/20/2019 3:07:24 PM
  * Author : William Blanc and Justin Crampton
  */ 
-#ifndef F_CPU
+
 #define F_CPU 16000000UL // Set CPU frequency to 16MHZ
-#endif
+#define BOARD_WIDTH 8
 
 #define DIN_PIN 3	// Set MOSI (DIN) to bit 3 of PORTB (pin 11)
 #define SCK_PIN	5	// Set Clock bit as bit 5 of PORTB (pin 13)
@@ -15,6 +15,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include "led_matrix.h"
+#include "snake.h"
 
 void setup();
 

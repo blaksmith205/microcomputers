@@ -80,7 +80,7 @@ void getAvailablePosition(int8_t *_row, int8_t *_col)
 bool isAvailable(uint8_t row, uint8_t col)
 {
 	// Check range of row and col
-	if ((row >= 0 && row <= 7) && (col >= 0 && col <= 7)){
+	if (isBoardBounded(row) && isBoardBounded(col)){
 		// Check if the board doesn't have an apple or snake segment
 		return board[row][col] == 0;
 	}
@@ -103,7 +103,11 @@ void placeFood()
 }
 
 
-void updateBoard(uint8_t row, uint8_t col, uint8_t value){
+void updateBoard(uint8_t row, uint8_t col, uint8_t value)
+{
+	if (!isBoardBounded(row) || !isBoardBounded(col))
+		return;
+		
 	board[row][col] = value;
 	if (value != LOW){
 		setLED(row, col, HIGH);
@@ -126,4 +130,4 @@ void randomInit()
 	seed = rand() % 255;
 	// Store seed for future use
 	eeprom_write_byte((uint8_t*)0x66, seed);
-};
+}

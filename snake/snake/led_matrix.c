@@ -48,7 +48,7 @@ void spi_transfer(uint16_t data)
 
 void setIntensity(uint8_t intensity)
 {
-	if (intensity < 0 || intensity > 15)
+	if (!isBounded(intensity, 0, 16)) 
 		return;
 	spi_transfer(0x0A00 | intensity);
 }
@@ -60,9 +60,7 @@ void setIntensity(uint8_t intensity)
 */
 void setLED(uint8_t row, uint8_t col, uint8_t state)
 {
-	if (row < 0 || row > 7)
-		return;
-	if (col < 0 || col > 7)
+	if (!isBoardBounded(row) || !isBoardBounded(col)) 
 		return;
 	
 	uint16_t data = ROWS[row];
@@ -82,8 +80,9 @@ void setLED(uint8_t row, uint8_t col, uint8_t state)
 
 void setRow(uint8_t row, uint8_t state)
 {
-	if (row < 0 || row > 7) 
+	if (!isBoardBounded(row)) 
 		return;
+	
 	// Clear all bits in the row in same transfer
 	if (state == LOW)
 		spi_transfer((8-row) << 8);
@@ -95,7 +94,7 @@ void setRow(uint8_t row, uint8_t state)
 
 void setCol(uint8_t col, uint8_t state)
 {
-	if (col < 0 || col > 7)
+	if (!isBoardBounded(col)) 
 		return;
 	
 	uint8_t _col;
@@ -116,8 +115,23 @@ void setCol(uint8_t col, uint8_t state)
 
 void clearScreen()
 {
-		// Clear all digits
-		for(uint16_t data = 0x0100; data <=0x0800; data += 0x0100){
-			spi_transfer(data);
-		}
+	// Clear all digits
+	for(uint16_t data = 0x0100; data <=0x0800; data += 0x0100){
+		spi_transfer(data);
+	}
+}
+
+/*
+	Checks if a value is within a certain range.
+	Lower bound is inclusive, Upper bound is exclusive
+*/
+bool isBounded(uint8_t value, uint8_t lowerBound, uint8_t upperBound)
+{
+	return value >= lowerBound || value < upperBound;
+}
+
+/* Convenience function for row and col bound checking */
+bool isBoardBounded(uint8_t value)
+{
+	return isBounded(value, 0, BOARD_WIDTH);
 }

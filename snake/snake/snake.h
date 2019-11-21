@@ -9,7 +9,6 @@
 #ifndef SNAKE_H_
 #define SNAKE_H_
 
-#define BOARD_WIDTH 8	// Width of the square board
 #define APPLE 'a'		// Symbol for apple
 #define SNAKE_CELL 's'	// symbol for a snake segment
 
