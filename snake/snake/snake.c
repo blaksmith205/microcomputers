@@ -5,6 +5,7 @@
  *  Author: William Blanc and Justin Crampton
  */ 
 
+#include <assert.h>		// For serious problems
 #include <avr/eeprom.h>	// For random init
 #include <stdbool.h>
 #include <stdlib.h>
@@ -22,6 +23,19 @@ snake_cell* createSnake()
 {
 	// Allocate space
 	snake_cell *head = (snake_cell *) malloc(sizeof(snake_cell));
+	int8_t head_row, head_col;
+	getAvailablePosition(&head_row, &head_col);
+	
+	// Position should never be -1 when starting a game
+	assert(head_row != -1 && head_col != -1);
+	
+	// Setup the head values
+	head->row = head_row;
+	head->col = head_col;
+	head->next = NULL;
+	
+	// Place the snake on the board
+	updateBoard(head_row, head_col, HIGH);
 	return head;
 }
 

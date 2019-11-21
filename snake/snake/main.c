@@ -22,6 +22,8 @@ void setup();
 int main(void)
 {
     setup();
+	
+	snake_cell *snake = createSnake();
     SET_BIT(DDRB, 0);	// Signal program is done
     SET_BIT(PORTB, 0);
     while(1);
