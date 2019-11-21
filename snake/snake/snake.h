@@ -29,6 +29,7 @@ typedef struct snake_cell
 }snake_cell;
 
 snake_cell* createSnake(int8_t startRow, int8_t startCol);
+snake_cell* start(uint8_t startRow, uint8_t startCol, bool *loopVar);
 void grow(snake_cell *head);
 void moveSnake(snake_cell *head, uint8_t direction);
 void getAvailablePosition(int8_t *row, int8_t *col);
@@ -38,7 +39,7 @@ bool isApple(uint8_t row, uint8_t col);
 bool isTail(uint8_t row, uint8_t col, snake_cell *tail);
 void placeFood();
 void clearBoard();
-bool updateBoard(uint8_t row, uint8_t col, uint8_t value);
+void updateBoard(uint8_t row, uint8_t col, uint8_t value);
 void updateBoardAndDisplay(uint8_t row, uint8_t col, uint8_t value);
 void endGame();
 

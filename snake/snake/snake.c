@@ -14,6 +14,8 @@
 
 // Global board matrix for location of elements
 uint8_t board[BOARD_WIDTH][BOARD_WIDTH];
+// Game loop tracker. Probably a better way to do this
+bool *gameLoop;
 // Snake related
 
 /*
@@ -44,8 +46,15 @@ snake_cell* createSnake(int8_t startRow, int8_t startCol)
 	head->prev = NULL;
 	
 	// Place the snake on the board
-	updateBoard(head_row, head_col, HIGH);
+	updateBoardAndDisplay(head_row, head_col, HIGH);
 	return head;
+}
+
+/* Creates the snake at desired location and keeps track of the game looping variable */
+snake_cell* start(uint8_t startRow, uint8_t startCol, bool *loopVar)
+{
+	gameLoop = loopVar;
+	return createSnake(startRow, startCol);
 }
 
 /* Grows the snake by 1 cell. Updates the tail pointer in head and updates the food*/
@@ -75,7 +84,7 @@ void moveSnake(snake_cell *head, uint8_t direction)
 		}
 		// Check if the next cell contains a body segment (not a tail)
 		else if (!isTail(nextRow, nextCol, tail)){
-			endGame();	// No coming back from end
+			endGame();	// Signal the game to end
 			return;
 		}
 	}
@@ -89,12 +98,12 @@ void moveSnake(snake_cell *head, uint8_t direction)
 	uint8_t oldTailRow, oldTailCol;
 	// Update body
 	// moveBody(head, currentRow, currentCol, &oldTailRow, &oldTailCol);
-	// Clear the old position of the tail on the matrix. Board state already updated from moveBody call
+	// Clear the old position of the tail on the matrix.
 	if (tail == NULL){
-		setLED(currentRow, currentCol, LOW);
+		updateBoardAndDisplay(currentRow, currentCol, LOW);
 	}
 	else {
-		setLED(oldTailRow, oldTailCol, LOW);
+		updateBoardAndDisplay(oldTailRow, oldTailCol, LOW);
 	}
 }
 
@@ -235,7 +244,7 @@ void placeFood()
 	int8_t food_col;
 	getAvailablePosition(&food_row, &food_col);
 	if (food_row != -1 && food_col != -1){
-		updateBoardAndDisplay(food_row, food_col, HIGH);
+		updateBoard(food_row, food_col, APPLE);
 	}
 	else {
 		endGame();
@@ -253,13 +262,12 @@ void clearBoard()
 }
 
 /*  Updates the internal board state */
-bool updateBoard(uint8_t row, uint8_t col, uint8_t value)
+void updateBoard(uint8_t row, uint8_t col, uint8_t value)
 {
 	if (!isBoardBounded(row) || !isBoardBounded(col))
-		return false;
+		return;
 		
 	board[row][col] = value;
-	return true;
 }
 
 /*
@@ -268,9 +276,11 @@ bool updateBoard(uint8_t row, uint8_t col, uint8_t value)
 */
 void updateBoardAndDisplay(uint8_t row, uint8_t col, uint8_t value)
 {
-	if (updateBoard(row, col, value))
+	if (!isBoardBounded(row) || !isBoardBounded(col))
 		return;
-	// Bounded row and col check from updateBoard
+		
+	updateBoard(row, col, value);
+	
 	if (value != LOW){
 		setLED(row, col, HIGH);
 	}
@@ -281,7 +291,7 @@ void updateBoardAndDisplay(uint8_t row, uint8_t col, uint8_t value)
 
 void endGame()
 {
-	exit(0);
+	*gameLoop = false;
 }
 
 // Misc related
