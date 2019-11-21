@@ -83,11 +83,19 @@ void moveSnake(snake_cell *head, uint8_t direction)
 	head->row = nextRow;
 	head->col = nextCol;
 	
-	// Update the board
-	updateBoard(nextRow, nextCol, SNAKE_CELL);
-	// Clear the old position
-	updateBoard(currentRow, currentCol, LOW);
-	// Update the body
+	// Update the head
+	updateBoardAndDisplay(nextRow, nextCol, SNAKE_CELL);
+	// Store old location of tail
+	uint8_t oldTailRow, oldTailCol;
+	// Update body
+	// moveBody(head, currentRow, currentCol, &oldTailRow, &oldTailCol);
+	// Clear the old position of the tail on the matrix. Board state already updated from moveBody call
+	if (tail == NULL){
+		setLED(currentRow, currentCol, LOW);
+	}
+	else {
+		setLED(oldTailRow, oldTailCol, LOW);
+	}
 }
 
 /*
@@ -227,20 +235,42 @@ void placeFood()
 	int8_t food_col;
 	getAvailablePosition(&food_row, &food_col);
 	if (food_row != -1 && food_col != -1){
-		updateBoard(food_row, food_col, HIGH);
+		updateBoardAndDisplay(food_row, food_col, HIGH);
 	}
 	else {
 		endGame();
 	}
 }
 
+/* Clears internal board state */
+void clearBoard()
+{
+	for (int8_t row = 0; row < BOARD_WIDTH; row++){
+		for (int8_t col = 0; col < BOARD_WIDTH; col++){
+			board[row][col] = LOW;
+		}
+	}
+}
 
-void updateBoard(uint8_t row, uint8_t col, uint8_t value)
+/*  Updates the internal board state */
+bool updateBoard(uint8_t row, uint8_t col, uint8_t value)
 {
 	if (!isBoardBounded(row) || !isBoardBounded(col))
-		return;
+		return false;
 		
 	board[row][col] = value;
+	return true;
+}
+
+/*
+	Update the internal board state and the LED matrix.
+	Convenience function for updateBoard and setLED
+*/
+void updateBoardAndDisplay(uint8_t row, uint8_t col, uint8_t value)
+{
+	if (updateBoard(row, col, value))
+		return;
+	// Bounded row and col check from updateBoard
 	if (value != LOW){
 		setLED(row, col, HIGH);
 	}

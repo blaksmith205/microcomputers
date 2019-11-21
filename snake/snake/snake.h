@@ -37,7 +37,9 @@ bool isAvailable(uint8_t row, uint8_t col);
 bool isApple(uint8_t row, uint8_t col);
 bool isTail(uint8_t row, uint8_t col, snake_cell *tail);
 void placeFood();
-void updateBoard(uint8_t row, uint8_t col, uint8_t value);
+void clearBoard();
+bool updateBoard(uint8_t row, uint8_t col, uint8_t value);
+void updateBoardAndDisplay(uint8_t row, uint8_t col, uint8_t value);
 void endGame();
 
 // Misc
