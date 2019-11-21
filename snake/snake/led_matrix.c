@@ -19,7 +19,7 @@
 #define CS_PIN	2	// Set CS bit as bit 2 of PORTB (pin 10)
 #endif
 
-// Initialize the rows to zero
+/* Initialize the rows to zero */
 uint16_t ROWS[] = {0x0800, 0x0700, 0x0600, 0x0500, 0x0400, 0x0300, 0x0200, 0x0100};
 
 void spi_init(volatile uint8_t *DDR, uint8_t MOSI, uint8_t CLK, uint8_t CS)

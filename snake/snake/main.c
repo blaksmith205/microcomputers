@@ -35,7 +35,7 @@ void setup()
 	setIntensity(15);
 	
 	// Setup random generator
-	random_init();
+	randomInit();
 	
 	// Place the first food
 	placeFood();
