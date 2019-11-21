@@ -116,7 +116,7 @@ void setCol(uint8_t col, uint8_t state)
 void clearScreen()
 {
 	// Clear all digits
-	for(uint16_t data = 0x0100; data <=0x0800; data += 0x0100){
+	for (uint16_t data = 0x0100; data <=0x0800; data += 0x0100){
 		spi_transfer(data);
 	}
 }

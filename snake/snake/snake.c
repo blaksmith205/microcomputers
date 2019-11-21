@@ -19,13 +19,21 @@ uint8_t board[BOARD_WIDTH][BOARD_WIDTH];
 /*
 	Creates the head of the snake at a random location
 */
-snake_cell* createSnake()
+snake_cell* createSnake(int8_t startRow, int8_t startCol)
 {
 	// Allocate space
 	snake_cell *head = (snake_cell *) malloc(sizeof(snake_cell));
-	int8_t head_row, head_col;
-	getAvailablePosition(&head_row, &head_col);
 	
+	int8_t head_row, head_col;
+	
+	// Randomly generate position if -1 is given for row and col
+	if (startRow == -1 && startCol == -1){
+		getAvailablePosition(&head_row, &head_col);
+	}
+	else {
+		head_row = startRow;
+		head_col = startCol;
+	}
 	// Position should never be -1 when starting a game
 	assert(head_row != -1 && head_col != -1);
 	
@@ -102,7 +110,7 @@ void getAvailablePosition(int8_t *_row, int8_t *_col)
 			*_col = col;
 			return;
 		}
-		else{
+		else {
 			// Update position
 			row = rand() % BOARD_WIDTH;
 			col = rand() % BOARD_WIDTH;
@@ -197,7 +205,7 @@ void placeFood()
 	if (food_row != -1 && food_col != -1){
 		updateBoard(food_row, food_col, HIGH);
 	}
-	else{
+	else {
 		endGame();
 	}
 }

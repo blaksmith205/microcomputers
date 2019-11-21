@@ -28,7 +28,7 @@ typedef struct snake_cell
 	struct snake_cell *prev;	
 }snake_cell;
 
-snake_cell* createSnake();
+snake_cell* createSnake(int8_t startRow, int8_t startCol);
 void grow(snake_cell *head);
 void moveSnake(snake_cell *head, uint8_t direction);
 void getAvailablePosition(int8_t *row, int8_t *col);
