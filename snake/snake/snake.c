@@ -1,9 +1,9 @@
 /*
- * snake.c
- *
- * Created: 11/20/2019 5:39:00 PM
- *  Author: William Blanc and Justin Crampton
- */ 
+* snake.c
+*
+* Created: 11/20/2019 5:39:00 PM
+*  Author: William Blanc and Justin Crampton
+*/
 
 #include <assert.h>		// For serious problems
 #include <avr/eeprom.h>	// For random init
@@ -60,7 +60,7 @@ snake_cell* start(uint8_t startRow, uint8_t startCol, bool *loopVar)
 	return createSnakeSegment(startRow, startCol, NULL);
 }
 
-/* 
+/*
 	Moves the snake up. Performs necessary checks
 */
 void moveSnake(snake_cell *head, uint8_t direction)
@@ -108,13 +108,15 @@ void moveSnake(snake_cell *head, uint8_t direction)
 	// If the snake has a tail and it did not grow, clear the tails previous position
 	else if (tail != NULL && !grown){
 		updateBoardAndDisplay(prevTailRow, prevTailCol, LOW);
-	}	
-	/* 
+	}
+	
+	/*
 		If the snake has no tail and it did grow, the current position becomes a new snake segment
-			(tail == NULL && grown) -> do nothing
+		(tail == NULL && grown) -> do nothing
 		if the snake has a tail and it grew, the tails old position becomes a new snake segment
-			(tail != NULL && grown) -> do nothing
+		(tail != NULL && grown) -> do nothing
 	*/
+	
 	// Update the head
 	updateBoardAndDisplay(nextRow, nextCol, SNAKE_CELL);
 }
@@ -206,7 +208,7 @@ void updateFood(uint8_t newRow, uint8_t newCol)
 
 /*
 	Sets the value of row and col to an available position on the board.
-	
+
 	If position can't be randomly determined 8 times, will set the row and col
 	to the first available location on the board. If no available location,
 	row and col are set to -1
@@ -239,7 +241,7 @@ void getAvailablePosition(int8_t *_row, int8_t *_col)
 				// Update pointers
 				*_row = row;
 				*_col = col;
-				return;	
+				return;
 			}
 		}
 	}
@@ -249,9 +251,9 @@ void getAvailablePosition(int8_t *_row, int8_t *_col)
 	*_col = -1;
 }
 
-/* 
-	Sets the next cell from the current cell and desired direction. 
-	Loops top <=> bottom and left <=> right. Keeps the row and col 
+/*
+	Sets the next cell from the current cell and desired direction.
+	Loops top <=> bottom and left <=> right. Keeps the row and col
 	board bounded.
 */
 void getNextCell(uint8_t currentRow, uint8_t currentCol, uint8_t direction, uint8_t *nextRow, uint8_t *nextCol)
@@ -329,7 +331,7 @@ bool isTail(uint8_t row, uint8_t col, snake_cell *tail)
 		if (board[row][col] == SNAKE_CELL){
 			// Check if the cell matches the snake cell
 			if (tail->row == row && tail->col == col)
-				return true;
+			return true;
 		}
 	}
 	return false;
@@ -363,7 +365,7 @@ void updateBoard(uint8_t row, uint8_t col, uint8_t value)
 {
 	if (!isBoardBounded(row) || !isBoardBounded(col))
 		return;
-		
+	
 	board[row][col] = value;
 }
 
@@ -375,7 +377,7 @@ void updateBoardAndDisplay(uint8_t row, uint8_t col, uint8_t value)
 {
 	if (!isBoardBounded(row) || !isBoardBounded(col))
 		return;
-		
+	
 	updateBoard(row, col, value);
 	
 	if (value != LOW){
@@ -411,7 +413,7 @@ void endGame()
 void randomInit()
 {
 	// Obtain value from EEPROM
-	uint8_t seed = eeprom_read_byte((uint8_t*)0x66); 
+	uint8_t seed = eeprom_read_byte((uint8_t*)0x66);
 	// Set the random seed
 	srand(seed);
 	// Obtain random char value

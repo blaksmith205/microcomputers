@@ -1,9 +1,9 @@
 /*
- * led.c
- *
- * Created: 11/20/2019 3:08:04 PM
- *  Author: William Blanc
- */ 
+* led.c
+*
+* Created: 11/20/2019 3:08:04 PM
+*  Author: William Blanc
+*/
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -48,8 +48,8 @@ void spi_transfer(uint16_t data)
 
 void setIntensity(uint8_t intensity)
 {
-	if (!isBounded(intensity, 0, 16)) 
-		return;
+	if (!isBounded(intensity, 0, 16))
+		eturn;
 	spi_transfer(0x0A00 | intensity);
 }
 
@@ -60,7 +60,7 @@ void setIntensity(uint8_t intensity)
 */
 void setLED(uint8_t row, uint8_t col, uint8_t state)
 {
-	if (!isBoardBounded(row) || !isBoardBounded(col)) 
+	if (!isBoardBounded(row) || !isBoardBounded(col))
 		return;
 	
 	uint16_t data = ROWS[row];
@@ -80,7 +80,7 @@ void setLED(uint8_t row, uint8_t col, uint8_t state)
 
 void setRow(uint8_t row, uint8_t state)
 {
-	if (!isBoardBounded(row)) 
+	if (!isBoardBounded(row))
 		return;
 	uint16_t newRow;
 	// Clear all bits in the row in same transfer
@@ -99,7 +99,7 @@ void setRow(uint8_t row, uint8_t state)
 
 void setCol(uint8_t col, uint8_t state)
 {
-	if (!isBoardBounded(col)) 
+	if (!isBoardBounded(col))
 		return;
 	
 	for (uint8_t row = 0; row < BOARD_WIDTH; row++){

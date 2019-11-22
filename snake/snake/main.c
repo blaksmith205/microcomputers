@@ -1,9 +1,9 @@
 /*
- * snake.c
- *
- * Created: 11/20/2019 3:07:24 PM
- * Author : William Blanc and Justin Crampton
- */ 
+* snake.c
+*
+* Created: 11/20/2019 3:07:24 PM
+* Author : William Blanc and Justin Crampton
+*/
 
 #define F_CPU 16000000UL	// Set CPU frequency to 16MHZ
 #define BOARD_WIDTH 8
@@ -18,7 +18,8 @@
 #define DOWN_PIN	PORTD6	// Set the down button pin to bit 6 of PORT D (pin 6)
 #define LEFT_PIN	PORTD5	// Set the left button pin to bit 5 of PORT D (pin 5)
 #define RIGHT_PIN	PORTD4	// Set the right button pin to bit 4 of PORT D (pin 4)
-#define MONITOR_BUTTON(portIn, buttonPin) (portIn & (1 << buttonPin)) 
+#define MONITOR_BUTTON(portIn, buttonPin) (portIn & (1 << buttonPin))
+
 #include <avr/io.h>
 #include <util/delay.h>
 #include "led_matrix.h"
@@ -34,30 +35,30 @@ bool isRunning = true;
 
 int main(void)
 {
-    setup();
+	setup();
 	
- 	// Create the snake
- 	snake_cell *snake = start(-1, -1, &isRunning);
-	 
+	// Create the snake
+	snake_cell *snake = start(-1, -1, &isRunning);
+	
 	// Store the direction for continuous movement
 	uint8_t direction = 0;
 	
 	// Wait for first user press
 	while (monitorButtons(&direction) == 0);
 	
-    while (isRunning){
-    	// Move snake in determined direction
+	while (isRunning){
+		// Move snake in determined direction
 		moveSnake(snake, direction);
 		// Check the buttons
 		monitorButtons(&direction);
 		// Delay the game
-    	_delay_ms(GAME_DELAY);
-    }
+		_delay_ms(GAME_DELAY);
+	}
 
-    SET_BIT(DDRB, 0);	// Signal program is done
-    SET_BIT(PORTB, 0);
-    while(1);
-    return 0;
+	SET_BIT(DDRB, 0);	// Signal program is done
+	SET_BIT(PORTB, 0);
+	while(1);
+	return 0;
 }
 
 void setup()
@@ -87,7 +88,7 @@ void setupButtons(volatile uint8_t *BUTTON_DDR)
 }
 
 /*
-	Monitors all button pins. If a button is pressed, returns and updates the direction. 
+	Monitors all button pins. If a button is pressed, returns and updates the direction.
 	If no button was pressed, 0 is returned and direction remains unchanged
 */
 uint8_t monitorButtons(uint8_t *newDirection)

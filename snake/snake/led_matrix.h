@@ -1,9 +1,9 @@
 /*
- * led_matrix.h
- *
- * Created: 11/20/2019 3:08:25 PM
- *  Author: William Blanc
- */ 
+* led_matrix.h
+*
+* Created: 11/20/2019 3:08:25 PM
+*  Author: William Blanc
+*/
 
 
 #ifndef LED_MATRIX_H_
