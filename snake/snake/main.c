@@ -7,7 +7,7 @@
 
 #define F_CPU 16000000UL	// Set CPU frequency to 16MHZ
 #define BOARD_WIDTH 8
-#define GAME_DELAY 1000		// The delay of the game updating time, in ms
+#define GAME_DELAY 500		// The delay of the game updating time, in ms
 
 #define DIN_PIN PORTB3	// Set MOSI (DIN) to bit 3 of PORTB (pin 11)
 #define SCK_PIN	PORTB5	// Set Clock bit as bit 5 of PORTB (pin 13)
@@ -27,7 +27,8 @@
 
 void setup();
 void setupButtons(volatile uint8_t *BUTTON_DDR);
-uint8_t monitorButtons();
+
+uint8_t monitorButtons(uint8_t *newDirection);
 
 bool isRunning = true;
 
@@ -36,27 +37,22 @@ int main(void)
     setup();
 	
  	// Create the snake
- 	snake_cell *snake = start(7, 4, &isRunning);
+ 	snake_cell *snake = start(-1, -1, &isRunning);
+	 
+	// Store the direction for continuous movement
+	uint8_t direction = 0;
 	
-	endGame(); 
-//    	while (isRunning){
-//    		// Monitor the buttons on PIND
-//    		switch (monitorButtons()){
-//    			case UP:
-//    				moveSnake(snake, UP);
-//    				break;
-//    			case DOWN:
-//    				moveSnake(snake, DOWN);
-//    				break;
-//    			case LEFT:
-//    				moveSnake(snake, LEFT);
-//    				break;
-//    			case RIGHT:
-//    				moveSnake(snake, RIGHT);
-//    				break;
-//    		}
-//    		_delay_ms(GAME_DELAY);
-//    	}
+	// Wait for first user press
+	while (monitorButtons(&direction) == 0);
+	
+    while (isRunning){
+    	// Move snake in determined direction
+		moveSnake(snake, direction);
+		// Check the buttons
+		monitorButtons(&direction);
+		// Delay the game
+    	_delay_ms(GAME_DELAY);
+    }
 
     SET_BIT(DDRB, 0);	// Signal program is done
     SET_BIT(PORTB, 0);
@@ -91,21 +87,25 @@ void setupButtons(volatile uint8_t *BUTTON_DDR)
 }
 
 /*
-	Monitors all button pins. If a button is pressed, returns the direction.
-	Otherwise, returns 0 
+	Monitors all button pins. If a button is pressed, returns and updates the direction. 
+	If no button was pressed, 0 is returned and direction remains unchanged
 */
-uint8_t monitorButtons()
+uint8_t monitorButtons(uint8_t *newDirection)
 {
 	if (MONITOR_BUTTON(BUTTON_PORT, UP_PIN)){
+		*newDirection = UP;
 		return UP;
 	}
 	else if (MONITOR_BUTTON(BUTTON_PORT, DOWN_PIN)){
+		*newDirection = DOWN;
 		return DOWN;
 	}
 	else if (MONITOR_BUTTON(BUTTON_PORT, LEFT_PIN)){
+		*newDirection = LEFT;
 		return LEFT;
 	}
 	else if (MONITOR_BUTTON(BUTTON_PORT, RIGHT_PIN)){
+		*newDirection = RIGHT;
 		return RIGHT;
 	}
 	return 0;
