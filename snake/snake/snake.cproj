@@ -133,6 +133,12 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="digits.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="digits.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="led_matrix.c">
       <SubType>compile</SubType>
     </Compile>

@@ -23,6 +23,7 @@
 #include <util/delay.h>
 #include "led_matrix.h"
 #include "snake.h"
+#include "digits.h"
 
 void setup();
 void setupButtons(volatile uint8_t *BUTTON_DDR);
@@ -34,28 +35,28 @@ int main(void)
 {
     setup();
 	
-	// Create the snake
-	snake_cell *snake = start(0, 0, &isRunning);
+ 	// Create the snake
+ 	snake_cell *snake = start(-1, -1, &isRunning);
+ 
+   	while (isRunning){
+   		// Monitor the buttons on PIND
+   		switch (monitorButtons()){
+   			case UP:
+   				moveSnake(snake, UP);
+   				break;
+   			case DOWN:
+   				moveSnake(snake, DOWN);
+   				break;
+   			case LEFT:
+   				moveSnake(snake, LEFT);
+   				break;
+   			case RIGHT:
+   				moveSnake(snake, RIGHT);
+   				break;
+   		}
+   		_delay_ms(GAME_DELAY);
+   	}
 
- 	while (isRunning){
- 		// Monitor the buttons on PIND
- 		switch (monitorButtons()){
- 			case UP:
- 				moveSnake(snake, UP);
- 				break;
- 			case DOWN:
- 				moveSnake(snake, DOWN);
- 				break;
- 			case LEFT:
- 				moveSnake(snake, LEFT);
- 				break;
- 			case RIGHT:
- 				moveSnake(snake, RIGHT);
- 				break;
- 		}
- 		_delay_ms(GAME_DELAY);
- 	}
-	
     SET_BIT(DDRB, 0);	// Signal program is done
     SET_BIT(PORTB, 0);
     while(1);

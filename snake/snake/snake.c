@@ -11,12 +11,14 @@
 #include <stdlib.h>
 #include "led_matrix.h"
 #include "snake.h"
+#include "digits.h"
 
 // Global board matrix for location of elements
 uint8_t board[BOARD_WIDTH][BOARD_WIDTH];
 // Game loop tracker. Probably a better way to do this
 bool *gameLoop;
 // Snake related
+uint8_t score;
 
 /*
 	Creates a snake segment at a random location if row and col are -1.
@@ -127,6 +129,9 @@ void eatFood(snake_cell *head, uint8_t currentRow, uint8_t currentCol)
 	
 	// Set the new apple position
 	placeFood();
+	
+	// update score
+	score++;
 }
 
 /*
@@ -384,6 +389,21 @@ void updateBoardAndDisplay(uint8_t row, uint8_t col, uint8_t value)
 void endGame()
 {
 	*gameLoop = false;
+	
+	// Wait 5 seconds
+	_delay_ms(5000);
+	
+	clearBoard();
+	// Clear bottom row
+	setRow(7, LOW);
+	// Show bottom row as 'progress' bar
+	for (uint8_t col = 0; col < BOARD_WIDTH; col++){
+		updateBoardAndDisplay(7, col, APPLE);
+		_delay_ms(100);
+	}
+	
+	// Show the score
+	showScore(score);
 }
 
 // Misc related
