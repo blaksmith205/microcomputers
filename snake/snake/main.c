@@ -36,26 +36,27 @@ int main(void)
     setup();
 	
  	// Create the snake
- 	snake_cell *snake = start(-1, -1, &isRunning);
- 
-   	while (isRunning){
-   		// Monitor the buttons on PIND
-   		switch (monitorButtons()){
-   			case UP:
-   				moveSnake(snake, UP);
-   				break;
-   			case DOWN:
-   				moveSnake(snake, DOWN);
-   				break;
-   			case LEFT:
-   				moveSnake(snake, LEFT);
-   				break;
-   			case RIGHT:
-   				moveSnake(snake, RIGHT);
-   				break;
-   		}
-   		_delay_ms(GAME_DELAY);
-   	}
+ 	snake_cell *snake = start(7, 4, &isRunning);
+	
+	endGame(); 
+//    	while (isRunning){
+//    		// Monitor the buttons on PIND
+//    		switch (monitorButtons()){
+//    			case UP:
+//    				moveSnake(snake, UP);
+//    				break;
+//    			case DOWN:
+//    				moveSnake(snake, DOWN);
+//    				break;
+//    			case LEFT:
+//    				moveSnake(snake, LEFT);
+//    				break;
+//    			case RIGHT:
+//    				moveSnake(snake, RIGHT);
+//    				break;
+//    		}
+//    		_delay_ms(GAME_DELAY);
+//    	}
 
     SET_BIT(DDRB, 0);	// Signal program is done
     SET_BIT(PORTB, 0);

@@ -390,16 +390,15 @@ void endGame()
 {
 	*gameLoop = false;
 	
-	// Wait 5 seconds
+	// Wait 4 seconds
 	_delay_ms(5000);
 	
-	clearBoard();
-	// Clear bottom row
 	setRow(7, LOW);
+	_delay_ms(100);
 	// Show bottom row as 'progress' bar
 	for (uint8_t col = 0; col < BOARD_WIDTH; col++){
-		updateBoardAndDisplay(7, col, APPLE);
-		_delay_ms(100);
+		setLED(7, col, HIGH);
+		_delay_ms(200);
 	}
 	
 	// Show the score

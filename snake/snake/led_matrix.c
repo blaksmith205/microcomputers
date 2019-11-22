@@ -82,14 +82,19 @@ void setRow(uint8_t row, uint8_t state)
 {
 	if (!isBoardBounded(row)) 
 		return;
-	
+	uint16_t newRow;
 	// Clear all bits in the row in same transfer
-	if (state == LOW)
-		spi_transfer((8-row) << 8);
+	if (state == LOW){
+		newRow = (8-row) << 8;
+		spi_transfer(newRow);
+	}
 	// Set all bits in the row in same transfer
 	else if (state == HIGH){
-		spi_transfer(((8-row) << 8) | 0xFF);
+		newRow = ((8-row) << 8) | 0xFF;
+		spi_transfer(newRow);
 	}
+	// Update state of row
+	ROWS[row] = newRow;
 }
 
 void setCol(uint8_t col, uint8_t state)
@@ -97,19 +102,8 @@ void setCol(uint8_t col, uint8_t state)
 	if (!isBoardBounded(col)) 
 		return;
 	
-	uint8_t _col;
-	if (state == LOW){
-		CLR_BIT(_col, col);
-	}
-	else if (state == HIGH){
-		SET_BIT(_col, col);
-	}
-	else { 
-		return;
-	}
-	
-	for (uint16_t row = 0x0100; row <= 0x0800; row+=0x0100){
-		spi_transfer(row | _col);
+	for (uint8_t row = 0; row < BOARD_WIDTH; row++){
+		setLED(row, col, state);
 	}
 }
 
