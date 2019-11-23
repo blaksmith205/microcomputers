@@ -27,29 +27,29 @@ void spi_init(volatile uint8_t *DDR, uint8_t MOSI, uint8_t CLK, uint8_t CS)
 	*DDR = (1<<MOSI)|(1<<CLK)|(1<<CS);		//MOSI and SCK are output, CS to select matrix
 	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);	//enable SPI as master
 	
-	spi_transfer(0x0900);			//disable decoding for all segments
-	spi_transfer(0x0B07);			//scan 8 8-segments
+	spi_transfer(0x0900);	//disable decoding for all segments
+	spi_transfer(0x0B07);	//scan 8 8-segments
 	
 	clearScreen();
 	
-	spi_transfer(0x0C01);			//turn on the matrix
+	spi_transfer(0x0C01);	//turn on the matrix
 }
 
 void spi_transfer(uint16_t data)
 {
 	CLR_BIT(PORTB, CS_PIN);		// Select matrix
-	SPDR = data >> 8;			//start CMD transmission
-	while(!(SPSR & (1<<SPIF)));	//wait transfer finish
-	SPDR = data & 0xFF;			//start DATA transmission
-	while(!(SPSR & (1<<SPIF)));	//wait transfer finish
-	SET_BIT(PORTB, CS_PIN)		//terminate the packet by
+	SPDR = data >> 8;			// start CMD transmission
+	while(!(SPSR & (1<<SPIF)));	// wait for transfer to finish
+	SPDR = data & 0xFF;			// start DATA transmission
+	while(!(SPSR & (1<<SPIF)));	// wait for transfer to finish
+	SET_BIT(PORTB, CS_PIN)		// De-select matrix
 	_delay_ms(1);				// Wait a little bit
 }
 
 void setIntensity(uint8_t intensity)
 {
 	if (!isBounded(intensity, 0, 16))
-		eturn;
+		return;
 	spi_transfer(0x0A00 | intensity);
 }
 
