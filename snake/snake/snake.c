@@ -405,6 +405,9 @@ void endGame()
 	
 	// Show the score
 	showScore(score);
+	
+	// Light up the bottom row
+	setRow(7, HIGH);
 }
 
 // Misc related

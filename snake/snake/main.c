@@ -54,7 +54,6 @@ int main(void)
 		// Delay the game
 		_delay_ms(GAME_DELAY);
 	}
-
 	SET_BIT(DDRB, 0);	// Signal program is done
 	SET_BIT(PORTB, 0);
 	while(1);
