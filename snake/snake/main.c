@@ -93,18 +93,30 @@ void setupButtons(volatile uint8_t *BUTTON_DDR)
 uint8_t monitorButtons(uint8_t *newDirection)
 {
 	if (MONITOR_BUTTON(BUTTON_PORT, UP_PIN)){
+		// If already going DOWN, can't go UP instantly. Avoids death by self in most cases
+		if (*newDirection == DOWN)
+			return DOWN;
 		*newDirection = UP;
 		return UP;
 	}
 	else if (MONITOR_BUTTON(BUTTON_PORT, DOWN_PIN)){
+		// If already going UP, can't go DOWN instantly. Avoids death by self in most cases
+		if (*newDirection == UP)
+			return UP;
 		*newDirection = DOWN;
 		return DOWN;
 	}
 	else if (MONITOR_BUTTON(BUTTON_PORT, LEFT_PIN)){
+		// If already going RIGHT, can't go LEFT instantly. Avoids death by self in most cases
+		if (*newDirection == RIGHT)
+			return RIGHT;
 		*newDirection = LEFT;
 		return LEFT;
 	}
 	else if (MONITOR_BUTTON(BUTTON_PORT, RIGHT_PIN)){
+		// If already going RIGHT, can't go LEFT instantly. Avoids death by self in most cases
+		if (*newDirection == LEFT)
+			return LEFT;
 		*newDirection = RIGHT;
 		return RIGHT;
 	}
