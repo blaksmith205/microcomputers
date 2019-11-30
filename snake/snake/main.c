@@ -7,7 +7,7 @@
 
 #define F_CPU 16000000UL	// Set CPU frequency to 16MHZ
 #define BOARD_WIDTH 8
-#define GAME_DELAY 500		// The delay of the game updating time, in ms
+#define GAME_DELAY 250		// The delay of the game updating time, in ms
 
 #define DIN_PIN PORTB3	// Set MOSI (DIN) to bit 3 of PORTB (pin 11)
 #define SCK_PIN	PORTB5	// Set Clock bit as bit 5 of PORTB (pin 13)
