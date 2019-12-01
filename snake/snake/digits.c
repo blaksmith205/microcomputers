@@ -43,7 +43,7 @@ void showScore(uint8_t score)
 uint16_t* getLeftDigit(uint8_t value)
 {
 	// Allocate size of 8 uint16_t
-	uint16_t *values = (uint16_t*)malloc(8 * sizeof(uint16_t));
+	uint16_t *values = malloc(8 * sizeof(uint16_t));
 	values[0] = 0x0800;	// Clear top row
 	values[6] = 0x0200; // Clear second to last row
 	values[7] = 0x0100; // Clear last row
@@ -131,7 +131,7 @@ uint16_t* getLeftDigit(uint8_t value)
 uint16_t* getRightDigit(uint8_t value)
 {
 	// Allocate size of 8 uint16_t
-	uint16_t *values = (uint16_t*)malloc(8 * sizeof(uint16_t));
+	uint16_t *values = malloc(8 * sizeof(uint16_t));
 	values[0] = 0x0800;	// Clear top row
 	values[6] = 0x0200; // Clear second to last row
 	values[7] = 0x0100; // Clear last row

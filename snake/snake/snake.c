@@ -27,7 +27,7 @@ uint8_t score;
 snake_cell* createSnakeSegment(int8_t startRow, int8_t startCol, snake_cell *prev)
 {
 	// Allocate space
-	snake_cell *segment = (snake_cell *) malloc(sizeof(snake_cell));
+	snake_cell *segment = malloc(sizeof(snake_cell));
 	
 	int8_t segment_row, segment_col;
 	
